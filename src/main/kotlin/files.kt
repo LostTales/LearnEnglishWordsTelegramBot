@@ -8,7 +8,7 @@ fun main() {
 
     wordsFile.readLines().forEach {
         val line = it.split("|")
-        val correctAnswers: Int = if (line.size >= 3) line[2]?.toIntOrNull() ?: 0 else 0
+        val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
         val word = Word(original = line[0], translate = line[1], correctAnswersCount = correctAnswers)
         dictionary.add(word)
     }
