@@ -15,6 +15,7 @@ fun File.createDictionary(text: String): MutableList<Word> {
 
     createNewFile()
     appendText(text)
+    appendText("\n")
 
     val dictionary = mutableListOf<Word>()
 
@@ -33,8 +34,14 @@ fun showStartScreen(statistics: String) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         val userSelection = readln().toIntOrNull()
         when (userSelection) {
-            NUMBER_1 -> println("Учить слова")
-            NUMBER_2 -> println(statistics)
+            NUMBER_1 -> {
+                println("Учить слова")
+            }
+
+            NUMBER_2 -> {
+                println(statistics)
+            }
+
             ZERO -> {
                 println("Выход")
                 break
