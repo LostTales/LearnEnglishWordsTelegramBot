@@ -3,10 +3,21 @@ import java.io.File
 fun main() {
 
     val wordsFile = File("words.txt")
-    wordsFile.createNewFile()
-    wordsFile.writeText("hello привет\n")
-    wordsFile.appendText("dog собака\n")
-    wordsFile.appendText("cat кошка\n")
 
-    wordsFile.readLines().forEach { println(it) }
+    val dictionary = mutableListOf<Word>()
+
+    wordsFile.readLines().forEach {
+        val line = it.split("|")
+        val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
+        val word = Word(original = line[0], translate = line[1], correctAnswersCount = correctAnswers)
+        dictionary.add(word)
+    }
+
+    dictionary.forEach { println(it) }
+}
+
+fun File.createDictionary(text: String) {
+
+    createNewFile()
+    appendText(text)
 }
