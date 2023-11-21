@@ -4,7 +4,7 @@ fun main() {
 
     val wordsFile = File("words.txt")
 
-    showStartScreen(calculateStatistics(wordsFile.createDictionary("hello|привет|25")))
+    showStartScreen(wordsFile.createDictionary("hello|привет|25"))
 }
 
 fun File.createDictionary(text: String): MutableList<Word> {
@@ -24,21 +24,22 @@ fun File.createDictionary(text: String): MutableList<Word> {
     return dictionary
 }
 
-fun showStartScreen(statistics: String) {
+fun showStartScreen(dictionary: MutableList<Word>) {
 
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         val userSelection = readln().toIntOrNull()
         when (userSelection) {
-            NUMBER_1 -> {
+            NUMBER_1_ON_THE_MENU -> {
                 println("Учить слова")
             }
 
-            NUMBER_2 -> {
+            NUMBER_2_ON_THE_MENU -> {
                 println("Статистика")
+                println(calculateStatistics(dictionary))
             }
 
-            ZERO -> {
+            NUMBER_0_ON_THE_MENU -> {
                 println("Выход")
                 break
             }
@@ -55,12 +56,12 @@ fun calculateStatistics(dictionary: MutableList<Word>): String {
 
     val numberOfWordsLearned = dictionary.filter { it.correctAnswersCount >= NUMBER_3 }.count()
     val numberOfWords = dictionary.map { it.original }.count()
-    val percentageOfCorrectAnswers = (numberOfWordsLearned.toDouble() / numberOfWords) * NUMBER_100
+    val percentageOfCorrectAnswers = Math.round((numberOfWordsLearned.toDouble() / numberOfWords) * NUMBER_100)
     return "Выучено $numberOfWordsLearned из $numberOfWords слов | $percentageOfCorrectAnswers%"
 }
 
-const val ZERO = 0
-const val NUMBER_1 = 1
-const val NUMBER_2 = 2
+const val NUMBER_0_ON_THE_MENU = 0
+const val NUMBER_1_ON_THE_MENU = 1
+const val NUMBER_2_ON_THE_MENU = 2
 const val NUMBER_3 = 3
 const val NUMBER_100 = 100
