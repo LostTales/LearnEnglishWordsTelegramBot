@@ -4,11 +4,7 @@ fun main() {
 
     val wordsFile = File("words.txt")
 
-    val dictionary = wordsFile.createDictionary("hello|привет|25")
-
-    calculateStatistics(dictionary)
-
-    showStartScreen(calculateStatistics(dictionary))
+    showStartScreen(calculateStatistics(wordsFile.createDictionary("hello|привет|25")))
 }
 
 fun File.createDictionary(text: String): MutableList<Word> {
@@ -39,7 +35,7 @@ fun showStartScreen(statistics: String) {
             }
 
             NUMBER_2 -> {
-                println(statistics)
+                println("Статистика")
             }
 
             ZERO -> {
