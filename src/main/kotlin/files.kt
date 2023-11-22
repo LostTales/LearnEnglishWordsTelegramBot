@@ -32,6 +32,7 @@ fun showStartScreen(dictionary: MutableList<Word>) {
         when (userSelection) {
             NUMBER_1_ON_THE_MENU -> {
                 println("Учить слова")
+                println(learnWords(dictionary))
             }
 
             NUMBER_2_ON_THE_MENU -> {
@@ -49,6 +50,44 @@ fun showStartScreen(dictionary: MutableList<Word>) {
             }
         }
 
+    } while (true)
+}
+
+fun learnWords(dictionary: MutableList<Word>) {
+
+    do {
+        val unlearnedWords = dictionary.filter { it.correctAnswersCount < NUMBER_3 }
+        if (unlearnedWords.isEmpty()) {
+            println("Вы выучили все слова")
+            break
+        } else {
+            val fourRandomWords = unlearnedWords.shuffled().take(4)
+            val randomWord = fourRandomWords.map { it.original }.random()
+            val originalWords = fourRandomWords.map { it.original }
+            val wordsToAnswer = fourRandomWords.map { it.translate }
+            println(
+                """
+                Переведите слово $randomWord
+                варианты ответов:
+                1.${wordsToAnswer.getOrNull(0)} 2.${wordsToAnswer.getOrNull(1)} 3.${
+                    wordsToAnswer.getOrNull(2)
+                } 4.${wordsToAnswer.getOrNull(3)}
+                0.Выход 
+            """.trimIndent()
+            )
+
+            val userSelection = readln().toIntOrNull()
+
+            if (userSelection == ((originalWords.indexOf(randomWord) + 1))) {
+                println("Ваш ответ правильный")
+            } else if (userSelection == 0) {
+                println("Выход")
+                break
+            } else {
+                println("Неверный ответ")
+            }
+
+        }
     } while (true)
 }
 
