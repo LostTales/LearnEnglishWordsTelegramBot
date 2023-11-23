@@ -30,17 +30,17 @@ fun showStartScreen(dictionary: MutableList<Word>) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         val userSelection = readln().toIntOrNull()
         when (userSelection) {
-            NUMBER_1_ON_THE_MENU -> {
+            MENU_ITEM_LEARN_WORDS -> {
                 println("Учить слова")
                 learnWords(dictionary)
             }
 
-            NUMBER_2_ON_THE_MENU -> {
+            MENU_ITEM_STATISTICS -> {
                 println("Статистика")
                 println(calculateStatistics(dictionary))
             }
 
-            NUMBER_0_ON_THE_MENU -> {
+            MENU_ITEM_EXIT -> {
                 println("Выход")
                 break
             }
@@ -56,26 +56,27 @@ fun showStartScreen(dictionary: MutableList<Word>) {
 fun learnWords(dictionary: MutableList<Word>) {
 
     do {
-        val unlearnedWords = dictionary.filter { it.correctAnswersCount < NUMBER_3 }
+        val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
         if (unlearnedWords.isEmpty()) {
             println("Вы выучили все слова")
             break
         } else {
             val fourRandomWords = unlearnedWords.shuffled().take(4)
             val randomWord = fourRandomWords.map { it.original }.random()
-            val originalWords = fourRandomWords.map { it.original }
-            val wordsToAnswer = fourRandomWords.map { it.translate }
             println(
                 """
                 Переведите слово $randomWord
                 варианты ответов:
-                1.${wordsToAnswer.getOrNull(0) ?: ""} 2.${wordsToAnswer.getOrNull(1) ?: ""} 3.${
-                    wordsToAnswer.getOrNull(2) ?: ""
-                } 4.${wordsToAnswer.getOrNull(3) ?: ""}
+                ${
+                    fourRandomWords.mapIndexed { index, word ->
+                        "${index + 1}.${word.translate}"
+                    }.joinToString(" ")
+                }
                 0.Вернуться в меню 
             """.trimIndent()
             )
 
+            val originalWords = fourRandomWords.map { it.original }
             val userSelection = readln().toIntOrNull()
 
             if (userSelection == ((originalWords.indexOf(randomWord) + 1))) {
@@ -94,14 +95,16 @@ fun learnWords(dictionary: MutableList<Word>) {
 
 fun calculateStatistics(dictionary: MutableList<Word>): String {
 
-    val numberOfWordsLearned = dictionary.filter { it.correctAnswersCount >= NUMBER_3 }.count()
+    val numberOfWordsLearned =
+        dictionary.filter { it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }.count()
     val numberOfWords = dictionary.map { it.original }.count()
-    val percentageOfCorrectAnswers = Math.round((numberOfWordsLearned.toDouble() / numberOfWords) * NUMBER_100)
+    val percentageOfCorrectAnswers =
+        Math.round((numberOfWordsLearned.toDouble() / numberOfWords) * PERCENTAGE_OF_THE_NUMBER)
     return "Выучено $numberOfWordsLearned из $numberOfWords слов | $percentageOfCorrectAnswers%"
 }
 
-const val NUMBER_0_ON_THE_MENU = 0
-const val NUMBER_1_ON_THE_MENU = 1
-const val NUMBER_2_ON_THE_MENU = 2
-const val NUMBER_3 = 3
-const val NUMBER_100 = 100
+const val MENU_ITEM_EXIT = 0
+const val MENU_ITEM_LEARN_WORDS = 1
+const val MENU_ITEM_STATISTICS = 2
+const val MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD = 3
+const val PERCENTAGE_OF_THE_NUMBER = 100
