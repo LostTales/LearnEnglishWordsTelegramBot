@@ -61,29 +61,28 @@ fun learnWords(dictionary: MutableList<Word>) {
             println("Вы выучили все слова")
             break
         } else {
-            val fourRandomWords = unlearnedWords.shuffled().take(4)
-            val randomWord = fourRandomWords.map { it.original }.random()
+            val fourRandomWords = unlearnedWords.shuffled().take(NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER)
+            val randomWord = fourRandomWords.random()
             println(
                 """
-                Переведите слово $randomWord
-                варианты ответов:
-                ${
+                |Переведите слово ${randomWord.original}
+                |варианты ответов:
+                |${
                     fourRandomWords.mapIndexed { index, word ->
                         "${index + 1}.${word.translate}"
-                    }.joinToString(" ")
+                    }.joinToString("\n")
                 }
-                0.Вернуться в меню 
-            """.trimIndent()
+                |0.Вернуться в меню 
+            """.trimMargin()
             )
 
-            val originalWords = fourRandomWords.map { it.original }
             val userSelection = readln().toIntOrNull()
 
-            if (userSelection == ((originalWords.indexOf(randomWord) + 1))) {
+            if (userSelection == (fourRandomWords.indexOf(randomWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
                 println("Ваш ответ правильный")
-                dictionary.filter { it == fourRandomWords[originalWords.indexOf(randomWord)] }
+                dictionary.filter { it == fourRandomWords[fourRandomWords.indexOf(randomWord)] }
                     .map { it.correctAnswersCount++ }
-            } else if (userSelection == 0) {
+            } else if (userSelection == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
             } else {
@@ -108,3 +107,5 @@ const val MENU_ITEM_LEARN_WORDS = 1
 const val MENU_ITEM_STATISTICS = 2
 const val MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD = 3
 const val PERCENTAGE_OF_THE_NUMBER = 100
+const val NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER = 4
+const val ADD_VALUE_FOR_COUNTING_FROM_ONE = 1
