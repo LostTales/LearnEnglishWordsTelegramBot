@@ -32,7 +32,7 @@ fun showStartScreen(dictionary: MutableList<Word>) {
         when (userSelection) {
             NUMBER_1_ON_THE_MENU -> {
                 println("Учить слова")
-                println(learnWords(dictionary))
+                learnWords(dictionary)
             }
 
             NUMBER_2_ON_THE_MENU -> {
@@ -69,10 +69,10 @@ fun learnWords(dictionary: MutableList<Word>) {
                 """
                 Переведите слово $randomWord
                 варианты ответов:
-                1.${wordsToAnswer.getOrNull(0)} 2.${wordsToAnswer.getOrNull(1)} 3.${
-                    wordsToAnswer.getOrNull(2)
-                } 4.${wordsToAnswer.getOrNull(3)}
-                0.Выход 
+                1.${wordsToAnswer.getOrNull(0) ?: ""} 2.${wordsToAnswer.getOrNull(1) ?: ""} 3.${
+                    wordsToAnswer.getOrNull(2) ?: ""
+                } 4.${wordsToAnswer.getOrNull(3) ?: ""}
+                0.Вернуться в меню 
             """.trimIndent()
             )
 
@@ -80,13 +80,14 @@ fun learnWords(dictionary: MutableList<Word>) {
 
             if (userSelection == ((originalWords.indexOf(randomWord) + 1))) {
                 println("Ваш ответ правильный")
+                dictionary.filter { it == fourRandomWords[originalWords.indexOf(randomWord)] }
+                    .map { it.correctAnswersCount++ }
             } else if (userSelection == 0) {
-                println("Выход")
+                println("Выход в меню")
                 break
             } else {
                 println("Неверный ответ")
             }
-
         }
     } while (true)
 }
