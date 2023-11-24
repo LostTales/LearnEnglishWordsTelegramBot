@@ -75,13 +75,14 @@ fun learnWords(dictionary: MutableList<Word>) {
                 |0.Вернуться в меню 
             """.trimMargin()
             )
-
+            println(dictionary)
             val userSelection = readln().toIntOrNull()
 
             if (userSelection == (fourRandomWords.indexOf(randomWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
                 println("Ваш ответ правильный")
-                dictionary.filter { it == fourRandomWords[fourRandomWords.indexOf(randomWord)] }
-                    .map { it.correctAnswersCount++ }
+                randomWord.correctAnswersCount++
+                saveDictionary(dictionary)
+                println(dictionary)
             } else if (userSelection == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
@@ -90,6 +91,15 @@ fun learnWords(dictionary: MutableList<Word>) {
             }
         }
     } while (true)
+}
+
+fun saveDictionary(dictionary: MutableList<Word>) {
+
+    val userWords = File("userWords.txt")
+    dictionary.forEach {
+        val line = "${it.original}|${it.translate}|${it.correctAnswersCount}"
+        userWords.createDictionary(line)
+    }
 }
 
 fun calculateStatistics(dictionary: MutableList<Word>): String {
