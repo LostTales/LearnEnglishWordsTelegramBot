@@ -4,7 +4,7 @@ fun main() {
 
     val wordsFile = File("words.txt")
 
-    showStartScreen(wordsFile.createDictionary("hello|привет|25"))
+    showStartScreen(wordsFile.createDictionary("exception|исключение|${null}"))
 }
 
 fun File.createDictionary(text: String): MutableList<Word> {
@@ -80,7 +80,8 @@ fun learnWords(dictionary: MutableList<Word>) {
             if (userSelection == (fourRandomWords.indexOf(randomWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
                 println("Ваш ответ правильный")
                 randomWord.correctAnswersCount++
-                saveDictionary(dictionary)
+                val userWords = File("words.txt")
+                userWords.saveDictionary(dictionary)
             } else if (userSelection == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
@@ -91,20 +92,14 @@ fun learnWords(dictionary: MutableList<Word>) {
     } while (true)
 }
 
-fun File.newCreateDictionary(text: String){
-    createNewFile()
-    appendText(text)
-    appendText("\n")
-}
+fun File.saveDictionary(dictionary: MutableList<Word>): MutableList<Word> {
 
-fun saveDictionary(dictionary: MutableList<Word>) {
-
-
-    val userWords = File("userWords.txt")
+    writeText("")
     dictionary.forEach {
         val line = "${it.original}|${it.translate}|${it.correctAnswersCount}"
-        userWords.newCreateDictionary(line)
+        this.createDictionary(line)
     }
+    return dictionary
 }
 
 fun calculateStatistics(dictionary: MutableList<Word>): String {
