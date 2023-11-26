@@ -56,13 +56,26 @@ fun showStartScreen(dictionary: MutableList<Word>) {
 fun learnWords(dictionary: MutableList<Word>) {
 
     do {
-        val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
+        val unlearnedWords: List<Word> =
+            dictionary.filter { it.correctAnswersCount < MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
         if (unlearnedWords.isEmpty()) {
             println("Вы выучили все слова")
             break
         } else {
-            val fourRandomWords = unlearnedWords.shuffled().take(NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER)
+            var fourRandomWords: List<Word> = unlearnedWords.shuffled().take(NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER)
             val randomWord = fourRandomWords.random()
+            if (fourRandomWords.size < NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER) {
+                fourRandomWords = fourRandomWords.toMutableList()
+                for (
+                i in fourRandomWords.size..<NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER) {
+                    fourRandomWords
+                        .add(
+                            dictionary.shuffled()
+                                .filter { (it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD) }
+                                .random())
+                }
+            }
+
             println(
                 """
                 |Переведите слово ${randomWord.original}
@@ -80,8 +93,9 @@ fun learnWords(dictionary: MutableList<Word>) {
             if (userSelection == (fourRandomWords.indexOf(randomWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
                 println("Ваш ответ правильный")
                 randomWord.correctAnswersCount++
-                val userWords = File("words.txt")
-                userWords.saveDictionary(dictionary)
+                //loadDictionary(File("words.txt"))
+                //saveDictionary(dictionary)
+                saveDictionary2(File("words.txt"), dictionary)
             } else if (userSelection == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
@@ -92,17 +106,34 @@ fun learnWords(dictionary: MutableList<Word>) {
     } while (true)
 }
 
-fun File.saveDictionary(dictionary: MutableList<Word>): MutableList<Word> {
+fun saveDictionary2(file: File, dictionary: MutableList<Word>): MutableList<Word> {
 
-    writeText("")
+    file.writeText("")
     dictionary.forEach {
         val line = "${it.original}|${it.translate}|${it.correctAnswersCount}"
-        this.createDictionary(line)
+        file.createDictionary(line)
     }
     return dictionary
 }
 
-fun calculateStatistics(dictionary: MutableList<Word>): String {
+fun loadDictionary(file: File): List<Word> { // TODO "вычитать ее содержимое" хочу выполнить, но не понял общей логики
+
+    val newDictionary = mutableListOf<Word>()
+    file.readLines().forEach {
+        val line = it.split("|")
+        val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
+        val word = Word(original = line[0], translate = line[1], correctAnswersCount = correctAnswers)
+        newDictionary.add(word)
+    }
+    return newDictionary.toList()
+}
+
+fun saveDictionary(dictionary: MutableList<Word>) {
+
+   // TODO сохранить словарь
+}
+
+fun calculateStatistics(dictionary: List<Word>): String {
 
     val numberOfWordsLearned =
         dictionary.filter { it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }.count()
