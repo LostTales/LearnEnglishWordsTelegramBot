@@ -3,19 +3,19 @@ import java.io.File
 fun main() {
 
     val wordsFile = File("words.txt")
-
-    showStartScreen(wordsFile.createDictionary("hello|привет|25"))
+    val dictionary = loadDictionary(wordsFile)
+    showStartScreen(dictionary)
 }
 
-fun File.createDictionary(text: String): MutableList<Word> {
+fun createDictionary(file: File, text: String): List<Word> {
 
-    createNewFile()
-    appendText(text)
-    appendText("\n")
+    file.createNewFile()
+    file.appendText(text)
+    file.appendText("\n")
 
     val dictionary = mutableListOf<Word>()
 
-    this.readLines().forEach {
+    file.readLines().forEach {
         val line = it.split("|")
         val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
         val word = Word(original = line[0], translate = line[1], correctAnswersCount = correctAnswers)
@@ -24,7 +24,7 @@ fun File.createDictionary(text: String): MutableList<Word> {
     return dictionary
 }
 
-fun showStartScreen(dictionary: MutableList<Word>) {
+fun showStartScreen(dictionary: List<Word>) {
 
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
@@ -53,35 +53,38 @@ fun showStartScreen(dictionary: MutableList<Word>) {
     } while (true)
 }
 
-fun learnWords(dictionary: MutableList<Word>) {
+fun learnWords(dictionary: List<Word>) {
 
     do {
-        val unlearnedWords = dictionary.filter { it.correctAnswersCount < MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
+        val unlearnedWords: List<Word> =
+            dictionary.filter { it.correctAnswersCount < MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
         if (unlearnedWords.isEmpty()) {
             println("Вы выучили все слова")
             break
         } else {
-            val fourRandomWords = unlearnedWords.shuffled().take(NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER)
-            val randomWord = fourRandomWords.random()
-            println(
-                """
-                |Переведите слово ${randomWord.original}
-                |варианты ответов:
-                |${
-                    fourRandomWords.mapIndexed { index, word ->
-                        "${index + 1}.${word.translate}"
-                    }.joinToString("\n")
-                }
-                |0.Вернуться в меню 
-            """.trimMargin()
-            )
+            var questionWords: List<Word> = unlearnedWords.shuffled().take(NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER)
+            val learningWord = questionWords.random()
+            if (questionWords.size < NUMBER_OF_WORDS_TO_CHOOSE_CORRECT_ANSWER) {
+                questionWords = questionWords + dictionary
+                    .filter { (it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD) }
+                    .shuffled()
+            }
 
+            println(
+                questionWords
+                    .mapIndexed { index, word -> "${index + 1}.${word.translate}" }
+                    .joinToString(
+                        prefix = "Переведите слово ${learningWord.original}, варианты ответов:\n",
+                        separator = "\n",
+                        postfix = "\n0. Вернуться в меню",
+                    )
+            )
             val userSelection = readln().toIntOrNull()
 
-            if (userSelection == (fourRandomWords.indexOf(randomWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
+            if (userSelection == (questionWords.indexOf(learningWord) + ADD_VALUE_FOR_COUNTING_FROM_ONE)) {
                 println("Ваш ответ правильный")
-                dictionary.filter { it == fourRandomWords[fourRandomWords.indexOf(randomWord)] }
-                    .map { it.correctAnswersCount++ }
+                learningWord.correctAnswersCount++
+                saveDictionary(File("words.txt"), dictionary)
             } else if (userSelection == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
@@ -92,10 +95,31 @@ fun learnWords(dictionary: MutableList<Word>) {
     } while (true)
 }
 
-fun calculateStatistics(dictionary: MutableList<Word>): String {
+fun saveDictionary(file: File, dictionary: List<Word>) {
+
+    file.writeText("")
+    dictionary.forEach {
+        val line = "${it.original}|${it.translate}|${it.correctAnswersCount}"
+        file.appendText(line)
+        file.appendText("\n")
+    }
+}
+
+fun loadDictionary(file: File): List<Word> {
+
+    val newDictionary = file.readLines()
+        .map {
+            val line = it.split("|")
+            val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
+            Word(original = line[0], translate = line[1], correctAnswersCount = correctAnswers)
+        }
+    return newDictionary
+}
+
+fun calculateStatistics(dictionary: List<Word>): String {
 
     val numberOfWordsLearned =
-        dictionary.filter { it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }.count()
+        dictionary.count { it.correctAnswersCount >= MIN_NUMBER_OF_CORRECT_ANSWERS_TO_STUDY_WORD }
     val numberOfWords = dictionary.map { it.original }.count()
     val percentageOfCorrectAnswers =
         Math.round((numberOfWordsLearned.toDouble() / numberOfWords) * PERCENTAGE_OF_THE_NUMBER)
