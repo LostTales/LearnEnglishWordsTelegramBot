@@ -9,17 +9,17 @@ fun main() {
         return
     }
 
-    showStartScreen(trainer.dictionary, trainer)
+    showStartScreen(trainer)
 }
 
-fun showStartScreen(dictionary: List<Word>, trainer: LearnWordsTrainer) {
+fun showStartScreen(trainer: LearnWordsTrainer) {
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         val userSelection = readln().toIntOrNull()
         when (userSelection) {
             MENU_ITEM_LEARN_WORDS -> {
                 println("Учить слова")
-                learnWords(dictionary, trainer)
+                learnWords(trainer)
             }
 
             MENU_ITEM_STATISTICS -> {
@@ -51,7 +51,7 @@ fun Question.asConsoleString(): String {
         )
 }
 
-fun learnWords(dictionary: List<Word>, trainer: LearnWordsTrainer) {
+fun learnWords(trainer: LearnWordsTrainer) {
     do {
         val question = trainer.getNextQuestion()
         if (question == null) {
