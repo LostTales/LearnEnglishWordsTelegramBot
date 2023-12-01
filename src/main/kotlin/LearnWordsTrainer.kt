@@ -1,5 +1,11 @@
 import java.io.File
 
+data class Word(
+    val questionWord: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
+
 data class Statistics(
     val learned: Int,
     val total: Int,
@@ -11,7 +17,10 @@ data class Question(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer(private val learnedAnswerCount: Int = 3, private val countOfQuestionWords: Int = 4) {
+class LearnWordsTrainer(
+    private val learnedAnswerCount: Int = 3,
+    private val countOfQuestionWords: Int = 4,
+) {
 
     private var question: Question? = null
     private val wordsFile = File("words.txt")
@@ -74,9 +83,8 @@ class LearnWordsTrainer(private val learnedAnswerCount: Int = 3, private val cou
     private fun saveDictionary(file: File, dictionary: List<Word>) {
         file.writeText("")
         dictionary.forEach {
-            val line = "${it.questionWord}|${it.translate}|${it.correctAnswersCount}"
+            val line = "${it.questionWord}|${it.translate}|${it.correctAnswersCount}\n"
             file.appendText(line)
-            file.appendText("\n")
         }
     }
 

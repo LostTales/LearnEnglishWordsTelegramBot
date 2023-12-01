@@ -1,11 +1,5 @@
 import java.io.File
 
-data class Word(
-    val questionWord: String,
-    val translate: String,
-    var correctAnswersCount: Int = 0,
-)
-
 fun main() {
 
     val trainer = try {
@@ -15,22 +9,22 @@ fun main() {
         return
     }
 
-    showStartScreen(trainer.dictionary)
+    showStartScreen(trainer.dictionary, trainer)
 }
 
-fun showStartScreen(dictionary: List<Word>) {
+fun showStartScreen(dictionary: List<Word>, trainer: LearnWordsTrainer) {
     do {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         val userSelection = readln().toIntOrNull()
         when (userSelection) {
             MENU_ITEM_LEARN_WORDS -> {
                 println("Учить слова")
-                learnWords(dictionary)
+                learnWords(dictionary, trainer)
             }
 
             MENU_ITEM_STATISTICS -> {
                 println("Статистика")
-                val statistics = LearnWordsTrainer(3, 4).getStatistics()
+                val statistics = trainer.getStatistics()
                 println("Выучено ${statistics.learned} из ${statistics.total} слов | ${statistics.percent}%")
             }
 
@@ -57,9 +51,9 @@ fun Question.asConsoleString(): String {
         )
 }
 
-fun learnWords(dictionary: List<Word>) {
+fun learnWords(dictionary: List<Word>, trainer: LearnWordsTrainer) {
     do {
-        val question = LearnWordsTrainer(3, 4).getNextQuestion()
+        val question = trainer.getNextQuestion()
         if (question == null) {
             println("Вы выучили все слова")
             break
@@ -71,7 +65,7 @@ fun learnWords(dictionary: List<Word>) {
             if (userAnswerInput == MENU_ITEM_EXIT) {
                 println("Выход в меню")
                 break
-            } else if (LearnWordsTrainer().checkAnswer(userAnswerInput?.minus(CONVERSION_TO_THE_INDEX_VALUE))) { // TODO checkAnswer всегда false
+            } else if (trainer.checkAnswer(userAnswerInput?.minus(CONVERSION_TO_THE_INDEX_VALUE))) {
                 println("Ваш ответ правильный")
             } else {
                 println("Неправильно! ${question.correctAnswer.questionWord} – это ${question.correctAnswer.translate}")
