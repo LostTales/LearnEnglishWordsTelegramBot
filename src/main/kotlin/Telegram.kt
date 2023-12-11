@@ -8,7 +8,7 @@ class TelegramBotService(
     private var updateId: Int,
 ) {
     fun getUpdates(): String {
-        val urlGetUpdates = "https://api.telegram.org/bot$botToken/getUpdates?offset=$updateId"
+        val urlGetUpdates = "$QUERIES_TO_THE_TELEGRAM_BOT_API$botToken/getUpdates?offset=$updateId"
         val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -16,7 +16,7 @@ class TelegramBotService(
     }
 
     fun sendMessage(chat_id: String, text: String): String {
-        val urlSendMessage = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chat_id&text=$text"
+        val urlSendMessage = "$QUERIES_TO_THE_TELEGRAM_BOT_API$botToken/sendMessage?chat_id=$chat_id&text=$text"
         val client: HttpClient = HttpClient.newBuilder().build()
         val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).build()
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -30,23 +30,24 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
 
+    val updateIdRegex: Regex = "\"update_id\":(.+?),".toRegex()
+    val userMessageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
+    val idMessageTextRegex: Regex = "\"id\":(.+?),".toRegex()
+
     while (true) {
         Thread.sleep(2000)
         val bot = TelegramBotService(botToken, updateId)
         val updates: String = bot.getUpdates()
         println(updates)
 
-        val updateIdRegex: Regex = "\"update_id\":(.+?),".toRegex()
         val update_id = getSubstring(updateIdRegex, updates)
         println(update_id)
 
         updateId = update_id?.toInt()?.plus(1) ?: continue
 
-        val userMessageTextRegex: Regex = "\"text\":\"(.+?)\"".toRegex()
         val userText = getSubstring(userMessageTextRegex, updates)
         println(userText)
 
-        val idMessageTextRegex: Regex = "\"id\":(.+?),".toRegex()
         val chatId = getSubstring(idMessageTextRegex, updates)
         println(chatId)
         if (chatId != null && userText == "Hello") {
@@ -61,3 +62,5 @@ fun getSubstring(regex: Regex, updates: String): String? {
     val text = groups?.get(1)?.value
     return text
 }
+
+const val QUERIES_TO_THE_TELEGRAM_BOT_API = "https://api.telegram.org/bot"
