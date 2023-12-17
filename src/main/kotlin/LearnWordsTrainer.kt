@@ -22,7 +22,7 @@ class LearnWordsTrainer(
     private val countOfQuestionWords: Int = 4,
 ) {
 
-    private var question: Question? = null
+    internal var question: Question? = null
     private val wordsFile = File("words.txt")
     val dictionary = loadDictionary(wordsFile)
 
