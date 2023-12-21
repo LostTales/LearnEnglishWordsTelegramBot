@@ -15,10 +15,3 @@ fun main(args: Array<String>) {
         lastUpdateId = sortedUpdates.last().updateId + 1
     }
 }
-
-const val QUERIES_TO_THE_TELEGRAM_BOT_API = "https://api.telegram.org/bot"
-const val USER_CHOOSE_LEARN_WORDS = "learn_words_clicked"
-const val USER_CHOOSE_STATISTICS = "statistics_clicked"
-const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
-const val CALLBACK_DATA_ANSWER_TO_MENU = 9
-const val RESET_CLICKED = "reset_clicked"
