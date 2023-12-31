@@ -3,7 +3,7 @@ import java.io.File
 fun main() {
 
     val trainer = try {
-        LearnWordsTrainer(3, 4)
+        LearnWordsTrainer(learnedAnswerCount = 3, countOfQuestionWords = 4)
     } catch (e: Exception) {
         println("Невозможно загрузить словарь")
         return

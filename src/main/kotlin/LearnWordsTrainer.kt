@@ -1,5 +1,7 @@
+import kotlinx.serialization.Serializable
 import java.io.File
 
+@Serializable
 data class Word(
     val questionWord: String,
     val translate: String,
@@ -18,13 +20,13 @@ data class Question(
 )
 
 class LearnWordsTrainer(
+    private val fileName: String = "words.txt",
     private val learnedAnswerCount: Int = 3,
     private val countOfQuestionWords: Int = 4,
 ) {
 
     internal var question: Question? = null
-    private val wordsFile = File("words.txt")
-    val dictionary = loadDictionary(wordsFile)
+    private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
         val learned =
@@ -58,7 +60,7 @@ class LearnWordsTrainer(
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerIndex) {
                 it.correctAnswer.correctAnswersCount++
-                saveDictionary(wordsFile, dictionary)
+                saveDictionary()
                 true
             } else {
                 false
@@ -66,9 +68,13 @@ class LearnWordsTrainer(
         } ?: false
     }
 
-    private fun loadDictionary(file: File): List<Word> {
+    private fun loadDictionary(): List<Word> {
         try {
-            val newDictionary = file.readLines()
+            val wordsFile = File(fileName)
+            if (!wordsFile.exists()) {
+                File("words.txt").copyTo(wordsFile)
+            }
+            val newDictionary = wordsFile.readLines()
                 .map {
                     val line = it.split("|")
                     val correctAnswers: Int = line.getOrNull(2)?.toIntOrNull() ?: 0
@@ -80,12 +86,18 @@ class LearnWordsTrainer(
         }
     }
 
-    private fun saveDictionary(file: File, dictionary: List<Word>) {
-        file.writeText("")
+    private fun saveDictionary() {
+        val wordsFile = File(fileName)
+        wordsFile.writeText("")
         dictionary.forEach {
             val line = "${it.questionWord}|${it.translate}|${it.correctAnswersCount}\n"
-            file.appendText(line)
+            wordsFile.appendText(line)
         }
+    }
+
+    fun resetProgress() {
+        dictionary.forEach { it.correctAnswersCount = 0 }
+        saveDictionary()
     }
 
 }
